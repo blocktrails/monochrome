@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MRC20 - Fungible Tokens on Blocktrails</title>
+  <meta name="description" content="MRC20 fungible tokens on Blocktrails - Monochrome profile for Bitcoin-anchored tokens">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --fg: #e6edf3;
+      --muted: #7d8590;
+      --accent: #f7931a;
+      --green: #3fb950;
+      --red: #f85149;
+      --purple: #a371f7;
+      --code-bg: #161b22;
+      --border: #30363d;
+      --card-bg: #21262d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .back {
+      display: inline-block;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .back:hover { color: var(--accent); }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .version-badge {
+      font-size: 0.5em;
+      font-weight: 400;
+      color: var(--muted);
+      vertical-align: middle;
+    }
+    .tagline {
+      font-size: 1.2rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+    h2 {
+      font-size: 1.3rem;
+      margin: 2rem 0 1rem;
+      color: var(--fg);
+    }
+
+    .demo-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .token-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .token-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    .token-symbol {
+      background: var(--accent);
+      color: #000;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stat-value {
+      font-size: 1.25rem;
+      font-weight: 600;
+      font-family: monospace;
+    }
+
+    .balances {
+      margin-top: 1rem;
+    }
+    .balance-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem;
+      background: var(--code-bg);
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    .balance-pubkey {
+      color: var(--purple);
+    }
+    .balance-amount {
+      color: var(--green);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .action-btn {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem;
+      color: var(--fg);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .action-btn.mint { border-color: var(--green); color: var(--green); }
+    .action-btn.transfer { border-color: var(--purple); color: var(--purple); }
+    .action-btn.burn { border-color: var(--red); color: var(--red); }
+
+    .history {
+      margin-top: 1.5rem;
+    }
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-seq {
+      background: var(--code-bg);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-family: monospace;
+      color: var(--muted);
+    }
+    .history-op {
+      font-weight: 500;
+    }
+    .history-op.mint { color: var(--green); }
+    .history-op.transfer { color: var(--purple); }
+    .history-op.burn { color: var(--red); }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 400px;
+    }
+    .modal-title {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem;
+      color: var(--fg);
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .modal-actions button {
+      flex: 1;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .btn-cancel {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      color: var(--fg);
+    }
+    .btn-confirm {
+      background: var(--accent);
+      border: none;
+      color: #000;
+      font-weight: 600;
+    }
+
+    .info-section {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .info-section p {
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .code-block {
+      background: var(--code-bg);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    .footer {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .footer a { color: var(--accent); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <main>
+    <a href="https://blocktrails.org" class="back">← blocktrails.org</a>
+
+    <h1>MRC20 <span class="version-badge">v0.0.1</span></h1>
+    <p class="tagline">Fungible tokens on Blocktrails — Monochrome profile</p>
+
+    <div class="demo-card">
+      <div class="token-header">
+        <span class="token-name" id="token-name">Demo Token</span>
+        <span class="token-symbol" id="token-symbol">DEMO</span>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-label">Total Supply</div>
+          <div class="stat-value" id="total-supply">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Max Supply</div>
+          <div class="stat-value" id="max-supply">21M</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">States</div>
+          <div class="stat-value" id="state-count">0</div>
+        </div>
+      </div>
+
+      <div class="balances" id="balances">
+        <div style="color: var(--muted); font-size: 0.9rem;">No balances yet. Mint some tokens!</div>
+      </div>
+
+      <div class="actions">
+        <button class="action-btn mint" onclick="showModal('mint')">Mint</button>
+        <button class="action-btn transfer" onclick="showModal('transfer')">Transfer</button>
+        <button class="action-btn burn" onclick="showModal('burn')">Burn</button>
+      </div>
+
+      <div class="history" id="history">
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h2>How It Works</h2>
+      <p>
+        MRC20 is a fungible token profile built on Blocktrails. Each operation (mint, transfer, burn)
+        creates a state that can be anchored to Bitcoin via Blocktrails key tweaking.
+      </p>
+
+      <h2>State Format</h2>
+      <div class="code-block">
+{
+  "op": "urn:mono:op:mint",
+  "data": { "to": "&lt;pubkey&gt;", "amount": 1000 },
+  "prev": "&lt;sha256_of_previous_state&gt;",
+  "seq": 0,
+  "meta": { "name": "Demo", "symbol": "DEMO", "decimals": 8, "max_supply": 21000000 }
+}
+      </div>
+
+      <h2>Install</h2>
+      <div class="code-block">
+npm install mrc20
+
+# CLI
+mrc20 init --name "My Token" --symbol MTK
+mrc20 mint --to &lt;pubkey&gt; --amount 1000
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="https://github.com/blocktrails/monochrome">GitHub</a> ·
+        <a href="https://blocktrails.org/spec/profiles.html">Spec</a> ·
+        <a href="https://blocktrails.org">Blocktrails</a>
+      </p>
+    </div>
+  </main>
+
+  <!-- Modals -->
+  <div class="modal" id="modal-mint">
+    <div class="modal-content">
+      <div class="modal-title">Mint Tokens</div>
+      <div class="form-group">
+        <label>Recipient</label>
+        <select id="mint-to">
+          <option value="alice">Alice</option>
+          <option value="bob">Bob</option>
+          <option value="charlie">Charlie</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Amount</label>
+        <input type="number" id="mint-amount" value="1000000" min="1">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="hideModal('mint')">Cancel</button>
+        <button class="btn-confirm" onclick="doMint()">Mint</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-transfer">
+    <div class="modal-content">
+      <div class="modal-title">Transfer Tokens</div>
+      <div class="form-group">
+        <label>From</label>
+        <select id="transfer-from">
+          <option value="alice">Alice</option>
+          <option value="bob">Bob</option>
+          <option value="charlie">Charlie</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>To</label>
+        <select id="transfer-to">
+          <option value="bob">Bob</option>
+          <option value="alice">Alice</option>
+          <option value="charlie">Charlie</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Amount</label>
+        <input type="number" id="transfer-amount" value="100000" min="1">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="hideModal('transfer')">Cancel</button>
+        <button class="btn-confirm" onclick="doTransfer()">Transfer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-burn">
+    <div class="modal-content">
+      <div class="modal-title">Burn Tokens</div>
+      <div class="form-group">
+        <label>From</label>
+        <select id="burn-from">
+          <option value="alice">Alice</option>
+          <option value="bob">Bob</option>
+          <option value="charlie">Charlie</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Amount</label>
+        <input type="number" id="burn-amount" value="10000" min="1">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="hideModal('burn')">Cancel</button>
+        <button class="btn-confirm" onclick="doBurn()">Burn</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { sha256 } from 'https://esm.sh/@noble/hashes@1.4.0/sha256';
+    import { bytesToHex } from 'https://esm.sh/@noble/hashes@1.4.0/utils';
+
+    // Demo pubkeys
+    const PUBKEYS = {
+      alice: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      bob: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      charlie: 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc'
+    };
+
+    const NAMES = {
+      [PUBKEYS.alice]: 'Alice',
+      [PUBKEYS.bob]: 'Bob',
+      [PUBKEYS.charlie]: 'Charlie'
+    };
+
+    // JCS
+    function jcs(obj) {
+      return JSON.stringify(obj, (_, v) => {
+        if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
+          return Object.keys(v).sort().reduce((sorted, key) => {
+            sorted[key] = v[key];
+            return sorted;
+          }, {});
+        }
+        return v;
+      });
+    }
+
+    function hashState(state) {
+      const bytes = new TextEncoder().encode(jcs(state));
+      return bytesToHex(sha256(bytes));
+    }
+
+    // MRC20 Ledger
+    class MRC20 {
+      constructor(meta) {
+        this.meta = meta;
+        this.balances = new Map();
+        this.supply = 0n;
+        this.states = [];
+        this.seq = 0;
+      }
+
+      balance(pubkey) {
+        return this.balances.get(pubkey) || 0n;
+      }
+
+      mint(to, amount) {
+        const amountBig = BigInt(amount);
+        if (this.meta.max_supply && this.supply + amountBig > BigInt(this.meta.max_supply)) {
+          throw new Error('Exceeds max supply');
+        }
+
+        const state = {
+          op: 'urn:mono:op:mint',
+          data: { to, amount: Number(amountBig) },
+          prev: this.states.length ? hashState(this.states[this.states.length - 1]) : null,
+          seq: this.seq,
+          meta: this.meta
+        };
+
+        this.balances.set(to, (this.balance(to)) + amountBig);
+        this.supply += amountBig;
+        this.states.push(state);
+        this.seq++;
+        return state;
+      }
+
+      transfer(from, to, amount) {
+        const amountBig = BigInt(amount);
+        if (this.balance(from) < amountBig) {
+          throw new Error('Insufficient balance');
+        }
+
+        const state = {
+          op: 'urn:mono:op:transfer',
+          data: { from, to, amount: Number(amountBig) },
+          prev: hashState(this.states[this.states.length - 1]),
+          seq: this.seq,
+          meta: this.meta
+        };
+
+        this.balances.set(from, this.balance(from) - amountBig);
+        this.balances.set(to, this.balance(to) + amountBig);
+        this.states.push(state);
+        this.seq++;
+        return state;
+      }
+
+      burn(from, amount) {
+        const amountBig = BigInt(amount);
+        if (this.balance(from) < amountBig) {
+          throw new Error('Insufficient balance');
+        }
+
+        const state = {
+          op: 'urn:mono:op:burn',
+          data: { from, amount: Number(amountBig) },
+          prev: hashState(this.states[this.states.length - 1]),
+          seq: this.seq,
+          meta: this.meta
+        };
+
+        this.balances.set(from, this.balance(from) - amountBig);
+        this.supply -= amountBig;
+        this.states.push(state);
+        this.seq++;
+        return state;
+      }
+    }
+
+    // Demo state
+    const ledger = new MRC20({
+      name: 'Demo Token',
+      symbol: 'DEMO',
+      decimals: 8,
+      max_supply: 21000000
+    });
+
+    function formatAmount(n) {
+      const num = Number(n);
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    function render() {
+      document.getElementById('total-supply').textContent = formatAmount(ledger.supply);
+      document.getElementById('state-count').textContent = ledger.states.length;
+
+      // Balances
+      const balancesEl = document.getElementById('balances');
+      const entries = Array.from(ledger.balances.entries()).filter(([_, v]) => v > 0n);
+
+      if (entries.length === 0) {
+        balancesEl.innerHTML = '<div style="color: var(--muted); font-size: 0.9rem;">No balances yet. Mint some tokens!</div>';
+      } else {
+        balancesEl.innerHTML = entries.map(([pubkey, balance]) => `
+          <div class="balance-row">
+            <span class="balance-pubkey">${NAMES[pubkey] || pubkey.slice(0, 8)}...</span>
+            <span class="balance-amount">${formatAmount(balance)}</span>
+          </div>
+        `).join('');
+      }
+
+      // History
+      const historyEl = document.getElementById('history');
+      if (ledger.states.length === 0) {
+        historyEl.innerHTML = '';
+      } else {
+        historyEl.innerHTML = '<h3 style="font-size: 0.9rem; color: var(--muted); margin-bottom: 0.5rem;">History</h3>' +
+          ledger.states.map(state => {
+            const op = state.op.replace('urn:mono:op:', '');
+            const d = state.data;
+            let desc;
+            switch (op) {
+              case 'mint':
+                desc = `Mint ${formatAmount(d.amount)} to ${NAMES[d.to] || d.to.slice(0, 8)}`;
+                break;
+              case 'transfer':
+                desc = `Transfer ${formatAmount(d.amount)} from ${NAMES[d.from] || d.from.slice(0, 8)} to ${NAMES[d.to] || d.to.slice(0, 8)}`;
+                break;
+              case 'burn':
+                desc = `Burn ${formatAmount(d.amount)} from ${NAMES[d.from] || d.from.slice(0, 8)}`;
+                break;
+            }
+            return `
+              <div class="history-item">
+                <span class="history-seq">#${state.seq}</span>
+                <span class="history-op ${op}">${op}</span>
+                <span>${desc}</span>
+              </div>
+            `;
+          }).join('');
+      }
+    }
+
+    window.showModal = function(type) {
+      document.getElementById(`modal-${type}`).classList.add('show');
+    };
+
+    window.hideModal = function(type) {
+      document.getElementById(`modal-${type}`).classList.remove('show');
+    };
+
+    window.doMint = function() {
+      const to = PUBKEYS[document.getElementById('mint-to').value];
+      const amount = parseInt(document.getElementById('mint-amount').value);
+      try {
+        ledger.mint(to, amount);
+        render();
+        hideModal('mint');
+      } catch (e) {
+        alert(e.message);
+      }
+    };
+
+    window.doTransfer = function() {
+      const from = PUBKEYS[document.getElementById('transfer-from').value];
+      const to = PUBKEYS[document.getElementById('transfer-to').value];
+      const amount = parseInt(document.getElementById('transfer-amount').value);
+      try {
+        ledger.transfer(from, to, amount);
+        render();
+        hideModal('transfer');
+      } catch (e) {
+        alert(e.message);
+      }
+    };
+
+    window.doBurn = function() {
+      const from = PUBKEYS[document.getElementById('burn-from').value];
+      const amount = parseInt(document.getElementById('burn-amount').value);
+      try {
+        ledger.burn(from, amount);
+        render();
+        hideModal('burn');
+      } catch (e) {
+        alert(e.message);
+      }
+    };
+
+    // Close modal on background click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+        }
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>

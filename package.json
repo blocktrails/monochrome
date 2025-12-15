@@ -1,0 +1,23 @@
+{
+  "name": "mrc20",
+  "version": "0.0.1",
+  "description": "MRC20 fungible tokens on Blocktrails - Monochrome profile",
+  "main": "index.js",
+  "bin": {
+    "mrc20": "bin/mrc20.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": ["bitcoin", "nostr", "taproot", "tokens", "mrc20", "blocktrails", "monochrome"],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blocktrails/monochrome"
+  },
+  "dependencies": {
+    "blocktrails": "^0.0.3"
+  }
+}
