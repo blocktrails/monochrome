@@ -5,22 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MRC20 - Fungible Tokens on Blocktrails</title>
   <meta name="description" content="MRC20 fungible tokens on Blocktrails - Monochrome profile for Bitcoin-anchored tokens">
+    <meta name="theme-color" content="#f7f8f3">
+  <link rel="canonical" href="https://blocktrails.org/monochrome/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+  <meta property="og:title" content="MRC20 - Fungible Tokens on Blocktrails">
+  <meta property="og:description" content="MRC20 fungible tokens on Blocktrails - Monochrome profile for Bitcoin-anchored tokens">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://blocktrails.org/monochrome/">
+  <meta property="og:site_name" content="Blocktrails">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://blocktrails.org/monochrome/og.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MRC20: Fungible tokens on Blocktrails — Monochrome profile">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MRC20 - Fungible Tokens on Blocktrails">
+  <meta name="twitter:description" content="MRC20 fungible tokens on Blocktrails - Monochrome profile for Bitcoin-anchored tokens">
+  <meta name="twitter:image" content="https://blocktrails.org/monochrome/og.png">
+  <meta name="twitter:image:alt" content="MRC20: Fungible tokens on Blocktrails — Monochrome profile">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/site.css">
   <style>
-    :root {
-      --bg: #0d1117;
-      --fg: #e6edf3;
-      --muted: #7d8590;
-      --accent: #f7931a;
-      --green: #3fb950;
-      --red: #f85149;
-      --purple: #a371f7;
-      --code-bg: #161b22;
-      --border: #30363d;
-      --card-bg: #21262d;
-    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-family: var(--body);
       background: var(--bg);
       color: var(--fg);
       line-height: 1.6;
@@ -38,7 +52,7 @@
       font-size: 0.9rem;
       margin-bottom: 1.5rem;
     }
-    .back:hover { color: var(--accent); }
+    .back:hover { color: var(--accent-dark); }
     h1 {
       font-size: 2.5rem;
       font-weight: 700;
@@ -80,8 +94,8 @@
       font-weight: 600;
     }
     .token-symbol {
-      background: var(--accent);
-      color: #000;
+      background: var(--accent-dark);
+      color: var(--on-accent);
       padding: 0.25rem 0.75rem;
       border-radius: 999px;
       font-weight: 600;
@@ -105,7 +119,7 @@
     .stat-value {
       font-size: 1.25rem;
       font-weight: 600;
-      font-family: monospace;
+      font-family: var(--mono);
     }
 
     .balances {
@@ -118,7 +132,7 @@
       background: var(--code-bg);
       border-radius: 6px;
       margin-bottom: 0.5rem;
-      font-family: monospace;
+      font-family: var(--mono);
       font-size: 0.9rem;
     }
     .balance-pubkey {
@@ -145,8 +159,8 @@
       transition: all 0.2s;
     }
     .action-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
+      border-color: var(--accent-dark);
+      color: var(--accent-dark);
     }
     .action-btn.mint { border-color: var(--green); color: var(--green); }
     .action-btn.transfer { border-color: var(--purple); color: var(--purple); }
@@ -168,7 +182,7 @@
       background: var(--code-bg);
       padding: 0.25rem 0.5rem;
       border-radius: 4px;
-      font-family: monospace;
+      font-family: var(--mono);
       color: var(--muted);
     }
     .history-op {
@@ -185,7 +199,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.8);
+      background: rgba(23, 33, 27, 0.45);
       align-items: center;
       justify-content: center;
       z-index: 1000;
@@ -219,12 +233,12 @@
       border-radius: 6px;
       padding: 0.75rem;
       color: var(--fg);
-      font-family: monospace;
+      font-family: var(--mono);
       font-size: 0.9rem;
     }
     .form-group input:focus, .form-group select:focus {
       outline: none;
-      border-color: var(--accent);
+      border-color: var(--accent-dark);
     }
     .modal-actions {
       display: flex;
@@ -244,9 +258,9 @@
       color: var(--fg);
     }
     .btn-confirm {
-      background: var(--accent);
+      background: var(--accent-dark);
       border: none;
-      color: #000;
+      color: var(--on-accent);
       font-weight: 600;
     }
 
@@ -263,7 +277,7 @@
       background: var(--code-bg);
       border-radius: 8px;
       padding: 1rem;
-      font-family: monospace;
+      font-family: var(--mono);
       font-size: 0.85rem;
       overflow-x: auto;
       margin: 1rem 0;
@@ -277,11 +291,38 @@
       color: var(--muted);
       font-size: 0.85rem;
     }
-    .footer a { color: var(--accent); text-decoration: none; }
+    .footer a { color: var(--accent-dark); text-decoration: none; }
     .footer a:hover { text-decoration: underline; }
+
+    /* Site theme */
+    h1 span { font-family: var(--body); letter-spacing: 0; }
+    .code-block { white-space: pre-wrap; }
+    h1 { font-weight: 700; letter-spacing: -0.05em; line-height: 1.1; }
+    h2, h3 { letter-spacing: -0.03em; }
+    button, input, select, textarea { font-family: inherit; }
+    .demo-card, .modal-content { border-radius: 16px; box-shadow: 0 12px 30px rgba(41, 54, 43, 0.05); }
+    .code-block { border-radius: 12px; background: var(--dark); color: #dce6dd; }
   </style>
 </head>
 <body>
+  <header class="site-header static site-nav-page">
+    <div class="container navbar">
+      <a class="brand" href="/" aria-label="Blocktrails home">
+        <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <rect width="40" height="40" rx="11" fill="#17211B"/>
+          <path d="M10 29.5C15.5 29.5 25.5 28.5 25.5 23.5C25.5 18.5 14.5 20.5 14.5 15.5C14.5 12.8 18 11 23 11" stroke="#F7F8F3" stroke-width="3.2" stroke-linecap="round"/>
+          <rect x="24.5" y="7.5" width="7" height="7" rx="2" fill="#ED7C2C"/>
+        </svg>
+        <span class="brand-name">blocktrails</span>
+      </a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="/spec/">Spec</a>
+        <a href="/spec/profiles.html" aria-current="page">Profiles</a>
+        <a href="/demo/">Live Demo</a>
+        <a href="https://github.com/blocktrails">GitHub</a>
+      </nav>
+    </div>
+  </header>
   <main>
     <a href="https://blocktrails.org" class="back">← blocktrails.org</a>
 
